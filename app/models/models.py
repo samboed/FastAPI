@@ -1,4 +1,5 @@
 import datetime
+from typing import TypeVar
 
 from sqlalchemy.sql.functions import func
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
@@ -7,6 +8,9 @@ from sqlalchemy.types import Text, String, Numeric, Integer, DateTime
 
 class Base(DeclarativeBase):
     id: Mapped[int] = mapped_column(primary_key=True)
+
+
+ModelType = TypeVar("ModelType", bound=Base)
 
 
 class Advertisement(Base):

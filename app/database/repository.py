@@ -31,7 +31,7 @@ async def add_item(session: AsyncSession,
 
 async def get_item(session: AsyncSession,
                    model: type[ModelType],
-                   item_id: int) -> list[dict[str, Any]]:
+                   item_id: int) -> ModelType:
     stm = select(model).where(model.id == item_id)
     res = await session.execute(stm)
 

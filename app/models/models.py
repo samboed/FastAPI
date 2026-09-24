@@ -3,7 +3,7 @@ from typing import TypeVar
 
 from sqlalchemy.sql.functions import func
 from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped
-from sqlalchemy.types import Text, String, Numeric, Integer, DateTime
+from sqlalchemy.types import Text, String, Numeric, DateTime
 
 
 class Base(DeclarativeBase):
@@ -18,8 +18,8 @@ class Advertisement(Base):
 
     title: Mapped[str] = mapped_column(Text())
     description: Mapped[str] = mapped_column(String(250))
-    price: Mapped[float] = mapped_column(Numeric())
-    author_id: Mapped[int] = mapped_column(Integer(), nullable=True)
+    author: Mapped[str] = mapped_column(String(60))
+    price: Mapped[float] = mapped_column(Numeric(), nullable=True)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime,
                                                           server_default=func.now())
 
@@ -29,6 +29,6 @@ class Advertisement(Base):
             "title": self.title,
             "description": self.description,
             "price": self.price,
-            "author_id": self.author_id,
+            "author": self.author,
             "created_at": self.created_at
         }

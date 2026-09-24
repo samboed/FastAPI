@@ -14,8 +14,8 @@ from app.database.repository import (add_item, get_item, get_items,
 app = FastAPI(
     debug=DEBUG,
     title='API',
-    summary='API for advertisement',
-    version='0.0.1',
+    summary='API for advertisements',
+    version='0.0.2',
     lifespan=lifespan
 )
 

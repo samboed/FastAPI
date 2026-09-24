@@ -3,6 +3,7 @@ from typing import Any
 from pydantic import BaseModel as PydanticModel
 from fastapi import HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.models import ModelType
@@ -42,9 +43,11 @@ async def get_item(session: AsyncSession,
 
     return item
 
+
 async def get_items(session: AsyncSession,
-                    model: type[ModelType]) -> list[ModelType]:
-    stm = select(model)
+                    model: type[ModelType],
+                    conditions: list[BinaryExpression]) -> list[ModelType]:
+    stm = select(model).where(*conditions)
     res = await session.execute(stm)
 
     items = res.scalars().all()
@@ -76,3 +79,12 @@ async def delete_item(session: AsyncSession,
 
     await session.delete(item)
     await session.commit()
+
+
+def get_filter_conditions(model: ModelType,
+                          filter_params: PydanticModel) -> list[BinaryExpression]:
+    full_filter_params = filter_params.model_dump(exclude_unset=True)
+    return [
+        getattr(model, param) == val
+        for param, val in full_filter_params.items()
+    ]

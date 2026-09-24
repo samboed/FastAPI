@@ -11,5 +11,3 @@ async def get_db_session():
 
 
 DatabaseSessionDep = Annotated[AsyncConnection, Depends(get_db_session)]
-
-

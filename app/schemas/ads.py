@@ -8,7 +8,7 @@ class AdvertisementResponse(BaseModel):
     title: str
     description: str
     price: float
-    author_id: int
+    author: str
     created_at: datetime.datetime
 
 
@@ -16,10 +16,17 @@ class AdvertisementCreate(BaseModel):
     title: str
     description: str | None = None
     price: float | None = None
-    author_id: int | None = None
+    author: str | None = None
 
 
 class AdvertisementUpdate(BaseModel):
     title: str | None = None
     description: str | None = None
+    price: float | None = None
+
+
+class AdvertisementFilterParams(BaseModel):
+    title: str | None = None
+    description: str | None = None
+    author: str | None = None
     price: float | None = None

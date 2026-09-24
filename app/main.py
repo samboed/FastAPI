@@ -1,13 +1,15 @@
-from fastapi import FastAPI
+from typing import Annotated
+from fastapi import FastAPI, Query
 
 from app.core.config import DEBUG
 from app.core.dependencies import DatabaseSessionDep
 from app.core.lifespan import lifespan
-from app.schemas.ads import AdvertisementCreate, AdvertisementUpdate, AdvertisementResponse
+from app.schemas.ads import (AdvertisementCreate, AdvertisementUpdate,
+                             AdvertisementResponse, AdvertisementFilterParams)
 from app.models.models import Advertisement
 from app.database.repository import (add_item, get_item, get_items,
-                                     update_item, delete_item)
-
+                                     update_item, delete_item, 
+                                     get_filter_conditions)
 
 app = FastAPI(
     debug=DEBUG,
@@ -33,8 +35,10 @@ async def get_ad(db_session: DatabaseSessionDep,
 
 
 @app.get('/advertisements')
-async def get_ads(db_session: DatabaseSessionDep) -> list[AdvertisementResponse]:
-    items = await get_items(db_session, Advertisement)
+async def get_ads(db_session: DatabaseSessionDep,
+                  filter_params: Annotated[AdvertisementFilterParams, Query()]) -> list[AdvertisementResponse]:
+    conditions = get_filter_conditions(Advertisement, filter_params)
+    items = await get_items(db_session, Advertisement, conditions)
     return [AdvertisementResponse(**item.to_dict()) for item in items]
 
 

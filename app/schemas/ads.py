@@ -30,3 +30,4 @@ class AdvertisementFilterParams(BaseModel):
     description: str | None = None
     author: str | None = None
     price: float | None = None
+    created_at: datetime.datetime | None = None

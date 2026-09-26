@@ -1,4 +1,4 @@
-from typing import Any
+import datetime
 
 from pydantic import BaseModel as PydanticModel
 from fastapi import HTTPException, status
@@ -82,9 +82,22 @@ async def delete_item(session: AsyncSession,
 
 
 def get_filter_conditions(model: ModelType,
-                          filter_params: PydanticModel) -> list[BinaryExpression]:
-    full_filter_params = filter_params.model_dump(exclude_unset=True)
+                          filter_params: dict) -> list[BinaryExpression]:
     return [
         getattr(model, param) == val
-        for param, val in full_filter_params.items()
+        for param, val in filter_params.items()
+    ]
+
+
+def get_filter_condition_by_created_at(model: ModelType,
+                                       filter_value: str) -> list[BinaryExpression]:
+    if not filter_value:
+        return []
+
+    start_time = datetime.datetime.combine(filter_value, datetime.time.min)
+    end_time = start_time + datetime.timedelta(days=1)
+
+    return [
+        getattr(model, 'created_at') >= start_time,
+        getattr(model, 'created_at') < end_time
     ]

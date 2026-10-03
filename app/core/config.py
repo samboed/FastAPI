@@ -7,6 +7,7 @@ load_dotenv()
 
 DEBUG = True
 #DEBUG = bool(os.getenv('DEBUG', False) == 'True')
+DEBUG = bool(os.getenv('DEBUG', False) == 'True')
 
 DB_DRIVER = os.getenv('DB_DRIVER', 'postgresql+asyncpg')
 DB_USER = os.getenv('DB_USER', 'postgres')

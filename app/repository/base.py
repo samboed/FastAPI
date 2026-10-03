@@ -1,23 +1,24 @@
 import datetime
 
-from pydantic import BaseModel as PydanticModel
+from typing import Any
+
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.models.models import ModelType
+from app.models.base import ModelType
 
 
 async def add_item(session: AsyncSession,
-                   model: ModelType,
-                   item_data: PydanticModel) -> ModelType:
-    item = model(**item_data.model_dump())
+                   model: type[ModelType],
+                   item_data: dict[str, Any]) -> ModelType:
+    item = model(**item_data)
 
     session.add(item)
+
     try:
         await session.commit()
-        await session.refresh(item)
     except IntegrityError as ex:
         await session.rollback()
 
@@ -55,13 +56,9 @@ async def get_items(session: AsyncSession,
     return items
 
 
-async def update_item(session: AsyncSession,
-                      model: ModelType,
-                      update_item_data: PydanticModel,
-                      item_id: int) -> ModelType:
+async def update_item(session: AsyncSession, model: type[ModelType],
+                      item_id: int, update_item_data: dict) -> ModelType:
     item = await get_item(session, model, item_id)
-
-    update_item_data = update_item_data.model_dump(exclude_unset=True)
 
     for key, val in update_item_data.items():
         setattr(item, key, val)
@@ -73,7 +70,7 @@ async def update_item(session: AsyncSession,
 
 
 async def delete_item(session: AsyncSession,
-                      model: ModelType,
+                      model: type[ModelType],
                       item_id: int) -> ModelType:
     item = await get_item(session, model, item_id)
 
@@ -81,7 +78,7 @@ async def delete_item(session: AsyncSession,
     await session.commit()
 
 
-def get_filter_conditions(model: ModelType,
+def get_filter_conditions(model: type[ModelType],
                           filter_params: dict) -> list[BinaryExpression]:
     return [
         getattr(model, param) == val
@@ -89,7 +86,7 @@ def get_filter_conditions(model: ModelType,
     ]
 
 
-def get_filter_condition_by_created_at(model: ModelType,
+def get_filter_condition_by_created_at(model: type[ModelType],
                                        filter_value: str) -> list[BinaryExpression]:
     if not filter_value:
         return []

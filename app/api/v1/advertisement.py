@@ -1,40 +1,36 @@
 from typing import Annotated
-from fastapi import FastAPI, Query, Response
 
-from app.core.config import DEBUG
-from app.core.lifespan import lifespan
-from app.schemas.ads import (AdvertisementCreate, AdvertisementUpdate,
-                             AdvertisementResponse, AdvertisementFilterParams)
-from app.models.models import Advertisement
-from app.repository.base import (add_item, get_item, get_items,
-                                 update_item, delete_item,
-                                 get_filter_conditions,
-                                 get_filter_condition_by_created_at)
+from fastapi import APIRouter, Query
 
-app = FastAPI(
-    debug=DEBUG,
-    title='API',
-    summary='API for advertisements',
-    version='0.0.4',
-    lifespan=lifespan
+from app.api.dependencies import DatabaseSessionDep
+from app.models.advertisement import Advertisement
+from app.repository.base import add_item, get_item, get_filter_condition_by_created_at, get_filter_conditions, \
+    get_items, update_item, delete_item
+from app.schemas.advertisement import AdvertisementCreate, AdvertisementResponse, AdvertisementFilterParams, AdvertisementUpdate
+
+
+router = APIRouter(
+    prefix='/advertisement',
+    tags=['Advertisement']
 )
 
 
-@app.post('/advertisement')
-async def create_ad(db_session: DatabaseSessionDep,
-                    item_data: AdvertisementCreate) -> AdvertisementResponse:
-    item = await add_item(db_session, Advertisement, item_data)
+@router.post('')
+async def add_ad(db_session: DatabaseSessionDep,
+                 item_data: AdvertisementCreate) -> AdvertisementResponse:
+    item_data_dict = item_data.model_dump(exclude_unset=True)
+    item = await add_item(db_session, Advertisement, item_data_dict)
     return AdvertisementResponse(**item.to_dict())
 
 
-@app.get('/advertisement/{item_id}')
+@router.get('/{item_id}')
 async def get_ad(db_session: DatabaseSessionDep,
                  item_id: int) -> AdvertisementResponse:
     item = await get_item(db_session, Advertisement, item_id)
     return AdvertisementResponse(**item.to_dict())
 
 
-@app.get('/advertisement')
+@router.get('')
 async def get_ads(db_session: DatabaseSessionDep,
                   filter_params: Annotated[AdvertisementFilterParams, Query()]) -> list[AdvertisementResponse]:
     filter_params_dict = filter_params.model_dump(exclude_unset=True)
@@ -52,16 +48,17 @@ async def get_ads(db_session: DatabaseSessionDep,
     return [AdvertisementResponse(**item.to_dict()) for item in items]
 
 
-@app.patch('/advertisement/{item_id}')
+@router.patch('/{item_id}')
 async def update_ad(db_session: DatabaseSessionDep,
                     item_data: AdvertisementUpdate,
                     item_id: int) -> AdvertisementResponse:
-    item = await update_item(db_session, Advertisement, item_data, item_id)
+    item_data_dict = item_data.model_dump(exclude_unset=True)
+    item = await update_item(db_session, Advertisement, item_id, item_data_dict)
     return AdvertisementResponse(**item.to_dict())
 
 
-@app.delete('/advertisement/{item_id}')
-async def delete_ad(db_session: DatabaseSessionDep,
+@router.delete('/{item_id}')
+async def remove_ad(db_session: DatabaseSessionDep,
                     item_id: int):
     await delete_item(db_session, Advertisement, item_id)
     return {'message': f'{Advertisement.__name__} '

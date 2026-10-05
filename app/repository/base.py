@@ -1,12 +1,12 @@
 import datetime
 
 from typing import Any
-
-from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.sql.elements import BinaryExpression
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.exceptions import ItemIsExistError, NotFoundError
 from app.models.base import ModelType
 
 
@@ -23,8 +23,11 @@ async def add_item(session: AsyncSession,
         await session.rollback()
 
         if getattr(ex.orig, "pgcode", None) == '23505':
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                                detail=f'{model.__name__.capitalize()} already exists')
+            raise ItemIsExistError(
+                message=f'{model.__name__.capitalize()} '
+                        f'already exists'
+            )
+
 
         raise
 
@@ -39,8 +42,10 @@ async def get_item(session: AsyncSession,
 
     item = res.scalar_one_or_none()
     if not item:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f'{model.__name__.capitalize()} with id={item_id} not found')
+        raise NotFoundError(
+            message=f'{model.__name__.capitalize()} '
+                    f'with id={item_id} not found'
+        )
 
     return item
 

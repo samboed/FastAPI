@@ -1,5 +1,8 @@
-from sqlalchemy import String, ForeignKey
+import uuid
+
+from sqlalchemy import ForeignKey, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import func
 
 from .base import Base
 from .user import User
@@ -8,8 +11,11 @@ from .user import User
 class Token(Base):
     __tablename__ = 'tokens'
 
-    access_token: Mapped[str] = mapped_column(String, unique=True,
-                                       index=True)
+    jti: Mapped[uuid.UUID] = mapped_column(UUID,
+                                           server_default=func.gen_random_uuid(),
+                                           unique=True,
+                                           index=True,
+                                           nullable=False)
     user_id: Mapped['User'] = mapped_column(ForeignKey(User.id,
                                                        ondelete='CASCADE'))
 

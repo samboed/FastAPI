@@ -61,8 +61,19 @@ async def get_items(session: AsyncSession,
     return items
 
 
-async def update_item(session: AsyncSession, model: type[ModelType],
-                      item_id: int, update_item_data: dict) -> ModelType:
+async def update_item(session: AsyncSession, item: ModelType,
+                      update_item_data: dict) -> ModelType:
+    for key, val in update_item_data.items():
+        setattr(item, key, val)
+
+    await session.commit()
+    await session.refresh(item)
+
+    return item
+
+
+async def update_item_by_id(session: AsyncSession, model: type[ModelType],
+                            item_id: int, update_item_data: dict) -> ModelType:
     item = await get_item(session, model, item_id)
 
     for key, val in update_item_data.items():
@@ -75,8 +86,14 @@ async def update_item(session: AsyncSession, model: type[ModelType],
 
 
 async def delete_item(session: AsyncSession,
-                      model: type[ModelType],
-                      item_id: int) -> ModelType:
+                      item: ModelType):
+    await session.delete(item)
+    await session.commit()
+
+
+async def delete_item_by_id(session: AsyncSession,
+                            model: type[ModelType],
+                            item_id: int):
     item = await get_item(session, model, item_id)
 
     await session.delete(item)

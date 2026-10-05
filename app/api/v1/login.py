@@ -17,6 +17,9 @@ async def login_user(
         credentials: UserLogin,
         db_session: DatabaseSessionDep
 ):
-    token = await authenticate_user(db_session, credentials)
+    access_token, expires_in = await authenticate_user(db_session, credentials)
 
-    return token
+    return {
+        'access_token': access_token,
+        'expires_in': expires_in
+    }

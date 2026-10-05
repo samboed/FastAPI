@@ -8,5 +8,5 @@ class UserLogin(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
-    token_type: str = Field("Bearer")
+    token_type: str | None = Field("Bearer")
     expires_in: int | None = None

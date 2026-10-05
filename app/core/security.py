@@ -1,6 +1,7 @@
 import bcrypt
 import jwt
 
+from typing import Any
 from datetime import datetime, timedelta
 
 from app.core.config import JWT_SECRET_KEY, JWT_TTL
@@ -27,7 +28,7 @@ def check_password(password: str,
                           hashed_password.encode(ENCODING))
 
 
-def create_access_token(data: dict = None) -> str:
+def create_access_token(data: dict = None) -> tuple[str, int]:
     if data:
         payload = data.copy()
     else:
@@ -39,4 +40,17 @@ def create_access_token(data: dict = None) -> str:
 
     token = jwt.encode(payload, JWT_SECRET_KEY, JWT_ALGORITHM)
 
-    return token
+    return token, JWT_TTL
+
+
+def decode_access_token(access_token: str) -> dict[str, Any] | None:
+    try:
+        payload = jwt.decode(
+            access_token,
+            JWT_SECRET_KEY,
+            [JWT_ALGORITHM]
+        )
+    except jwt.PyJWTError:
+        return None
+
+    return payload

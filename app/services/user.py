@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import hash_password
+from app.core.exceptions import ForbiddenError
+from app.core.auth import check_object_access
 from app.schemas.user import UserCreate, UserUpdate
 from app.models.user import User
 from app.repository.base import (add_item, get_item,
@@ -20,14 +22,31 @@ async def get_user_by_id(db_session: AsyncSession, user_id: int):
 
     return user
 
-async def update_user_info_by_id(db_session: AsyncSession, user_id: int,
+
+async def update_user_info_by_id(db_session: AsyncSession,
+                                 current_user: User,
+                                 update_user_id: int,
                                  user: UserUpdate):
     update_data = user.model_dump()
 
-    user = await update_item(db_session, User, user_id, update_data)
+    user = await get_item(db_session, User, update_user_id)
+
+    access = await check_object_access(db_session, current_user, user, write=True)
+    if not access:
+        raise ForbiddenError()
+
+    user = await update_item(db_session, User, update_user_id, update_data)
 
     return user
 
 
-async def remove_user(db_session: AsyncSession, user_id: int):
-    await delete_item(db_session, User, user_id)
+async def remove_user(db_session: AsyncSession,
+                      current_user: User,
+                      user_id: int):
+    user = await get_item(db_session, User, user_id)
+
+    access = await check_object_access(db_session, current_user, user, delete=True)
+    if not access:
+        raise ForbiddenError()
+
+    await delete_item(db_session, user)

@@ -1,9 +1,11 @@
+from typing import Annotated
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordRequestForm
+
 from pydantic import BaseModel, Field
 
 
-class UserLogin(BaseModel):
-    login: str = Field(min_length=1, max_length=256)
-    password: str = Field(min_length=1, max_length=256)
+CredentialsFormDep = Annotated[OAuth2PasswordRequestForm, Depends()]
 
 
 class TokenResponse(BaseModel):

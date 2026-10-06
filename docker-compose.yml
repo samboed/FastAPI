@@ -22,6 +22,18 @@ services:
       interval: 10s
       timeout: 15s
       retries: 5
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mail.com
+      PGADMIN_DEFAULT_PASSWORD: 12345678
+    ports:
+      - "8080:80"
+    depends_on:
+      - postgres
+    networks:
+      - db
   app:
     build: .
     restart: unless-stopped

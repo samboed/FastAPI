@@ -17,7 +17,13 @@ async def register_user(db_session: AsyncSession, user: UserCreate):
     return user
 
 
-async def get_user_by_id(db_session: AsyncSession, user_id: int):
+async def get_all_users(db_session: AsyncSession) -> list[User]:
+    users = await get_items(db_session, User)
+
+    return users
+
+
+async def get_user_by_id(db_session: AsyncSession, user_id: int) -> User:
     user = await get_item(db_session, User, user_id)
 
     return user

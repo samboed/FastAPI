@@ -16,7 +16,7 @@ class Token(Base):
                                            unique=True,
                                            index=True,
                                            nullable=False)
-    user_id: Mapped['User'] = mapped_column(ForeignKey(User.id,
-                                                       ondelete='CASCADE'))
+    user_id: Mapped[int] = mapped_column(ForeignKey(User.id,
+                                                    ondelete='CASCADE'))
 
-    user = relationship(User, back_populates='tokens')
+    user: Mapped[User] = relationship(User, back_populates='tokens')

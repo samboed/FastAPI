@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class UserCreate(BaseModel):
@@ -8,6 +8,8 @@ class UserCreate(BaseModel):
 
 
 class UserRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     first_name: str | None = None
     last_name: str | None = None
@@ -19,5 +21,5 @@ class UserUpdate(BaseModel):
 
 
 class UserDelete(BaseModel):
-    success: bool = True
-    message: str = 'User was deleted'
+    success: bool | None = True
+    message: str | None = 'User was deleted'

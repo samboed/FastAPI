@@ -11,10 +11,10 @@ app = FastAPI(
     debug=DEBUG,
     title='API',
     summary='API for advertisements',
-    version='0.1.9',
+    version='0.2.0',
     lifespan=lifespan
 )
 
-app.add_exception_handler(ApiException, app_exception_handler)
+app.add_exception_handler(APIException, app_exception_handler)
 
 app.include_router(api_v1_router)

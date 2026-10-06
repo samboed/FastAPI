@@ -23,9 +23,13 @@ async def check_object_access(
     if delete:
         where_args.append(Permission.delete == True)
 
-    if not isinstance(resource, type) and hasattr(resource, 'user_id'):
-        if resource.user_id != user.id:
-            where_args.append(Permission.only_own == False)
+    if not isinstance(resource, type):
+        if hasattr(resource, 'owner_id'):
+            if resource.owner_id != user.id:
+                where_args.append(Permission.only_own == False)
+        else:
+            if resource.id != user.id:
+                where_args.append(Permission.only_own == False)
 
     query = (
         select(func.count())
@@ -33,7 +37,7 @@ async def check_object_access(
         .join(user_roles, User.id == user_roles.c.user_id)
         .join(Role, user_roles.c.role_id == Role.id)
         .join(role_permissions, Role.id == role_permissions.c.role_id)
-        .join(Permission, role_permissions.c.right_id == Permission.id)
+        .join(Permission, role_permissions.c.permission_id == Permission.id)
         .where(*where_args)
     )
 

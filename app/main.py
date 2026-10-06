@@ -11,7 +11,7 @@ app = FastAPI(
     debug=DEBUG,
     title='API',
     summary='API for advertisements',
-    version='0.3.2',
+    version='0.3.3',
     lifespan=lifespan
 )
 

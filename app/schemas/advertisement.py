@@ -8,7 +8,7 @@ class AdvertisementResponse(BaseModel):
     title: str
     description: str
     price: float
-    author: str
+    owner_id: int
     created_at: datetime.datetime
 
 
@@ -16,7 +16,6 @@ class AdvertisementCreate(BaseModel):
     title: str
     description: str | None = None
     price: float | None = None
-    author: str | None = None
 
 
 class AdvertisementUpdate(BaseModel):
@@ -28,6 +27,10 @@ class AdvertisementUpdate(BaseModel):
 class AdvertisementFilterParams(BaseModel):
     title: str | None = None
     description: str | None = None
-    author: str | None = None
     price: float | None = None
     created_at: datetime.datetime | None = None
+
+
+class AdvertisementDelete(BaseModel):
+    success: bool | None = True
+    message: str | None = 'Advertisement was deleted'

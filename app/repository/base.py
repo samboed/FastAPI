@@ -10,6 +10,7 @@ from app.core.exceptions import ItemIsExistError, NotFoundError
 from app.models.base import ModelType
 
 
+
 async def add_item(session: AsyncSession,
                    model: type[ModelType],
                    item_data: dict[str, Any]) -> ModelType:
@@ -28,6 +29,25 @@ async def add_item(session: AsyncSession,
                         f'already exists'
             )
 
+        raise
+
+    return item
+
+
+async def add_created_item(session: AsyncSession,
+                           item: ModelType) -> ModelType:
+    session.add(item)
+
+    try:
+        await session.commit()
+    except IntegrityError as ex:
+        await session.rollback()
+
+        if getattr(ex.orig, "pgcode", None) == '23505':
+            raise ItemIsExistError(
+                message=f'{item.__name__.capitalize()} '
+                        f'already exists'
+            )
 
         raise
 
@@ -36,12 +56,13 @@ async def add_item(session: AsyncSession,
 
 async def get_item(session: AsyncSession,
                    model: type[ModelType],
-                   item_id: int) -> ModelType:
+                   item_id: int,
+                   auto_error: bool = True) -> ModelType:
     stm = select(model).where(model.id == item_id)
     res = await session.execute(stm)
 
     item = res.scalar_one_or_none()
-    if not item:
+    if auto_error and not item:
         raise NotFoundError(
             message=f'{model.__name__.capitalize()} '
                     f'with id={item_id} not found'
@@ -52,7 +73,10 @@ async def get_item(session: AsyncSession,
 
 async def get_items(session: AsyncSession,
                     model: type[ModelType],
-                    conditions: list[BinaryExpression]) -> list[ModelType]:
+                    conditions: list[BinaryExpression] = None) -> list[ModelType]:
+    if not conditions:
+        conditions = []
+
     stm = select(model).where(*conditions)
     res = await session.execute(stm)
 

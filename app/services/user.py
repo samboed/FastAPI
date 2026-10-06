@@ -5,14 +5,16 @@ from app.core.exceptions import ForbiddenError
 from app.core.auth import check_object_access
 from app.schemas.user import UserCreate, UserUpdate
 from app.models.user import User
-from app.repository.base import (add_item, get_item,
+from app.repository.base import (get_item, get_items,
                                  update_item, delete_item)
+from app.repository.user import add_user
 
 
-async def register_user(db_session: AsyncSession, user: UserCreate):
+async def register_user(db_session: AsyncSession,
+                        user: UserCreate) -> User:
     user.password = hash_password(user.password)
 
-    user = await add_item(db_session, User, user.model_dump())
+    user = await add_user(db_session, user.model_dump())
 
     return user
 
@@ -32,8 +34,8 @@ async def get_user_by_id(db_session: AsyncSession, user_id: int) -> User:
 async def update_user_info_by_id(db_session: AsyncSession,
                                  current_user: User,
                                  update_user_id: int,
-                                 user: UserUpdate):
-    update_data = user.model_dump()
+                                 update_user_data_schema: UserUpdate) -> User:
+    update_user_data = update_user_data_schema.model_dump()
 
     user = await get_item(db_session, User, update_user_id)
 
@@ -41,9 +43,9 @@ async def update_user_info_by_id(db_session: AsyncSession,
     if not access:
         raise ForbiddenError()
 
-    user = await update_item(db_session, User, update_user_id, update_data)
+    updated_user = await update_item(db_session, user, update_user_data)
 
-    return user
+    return updated_user
 
 
 async def remove_user(db_session: AsyncSession,

@@ -1,4 +1,4 @@
-class AppException(Exception):
+class APIException(Exception):
     status_code = 500
     code = 'INTERNAL_SERVER_ERROR'
     message = 'Internal error'
@@ -17,26 +17,26 @@ class AppException(Exception):
         super().__init__(self.message)
 
 
-class UnauthorizedError(AppException):
+class UnauthorizedError(APIException):
     status_code = 401
     code = 'UNAUTHORIZED_ERROR'
-    message = ''
+    message = 'Access is denied due to invalid credentials'
 
 
-class ForbiddenError(AppException):
+class ForbiddenError(APIException):
     status_code = 403
     code = 'FORBIDDEN_ERROR'
     message = ('You do not have permission '
                'to perform this action')
 
 
-class NotFoundError(AppException):
+class NotFoundError(APIException):
     status_code = 404
     code = 'NOT_FOUND_ERROR'
     message = 'Resource not found'
 
 
-class ItemIsExistError(AppException):
+class ItemIsExistError(APIException):
     status_code = 409
     code = 'RESOURCE_ALREADY_EXIST_ERROR'
     message = 'Resource already exists'

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.core.config import DEBUG
 from app.core.exception_handlers import app_exception_handler
-from app.core.exceptions import AppException
+from app.core.exceptions import APIException
 from app.core.lifespan import lifespan
 from app.api.v1 import api_v1_router
 
@@ -15,6 +15,6 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-app.add_exception_handler(AppException, app_exception_handler)
+app.add_exception_handler(ApiException, app_exception_handler)
 
 app.include_router(api_v1_router)

@@ -26,6 +26,7 @@ async def register_new_user(
 @router.get('',
             response_model=list[UserRead])
 async def get_users(
+        current_user: CurrentUserDep,
         db_session: DatabaseSessionDep
 ):
     users = await get_all_users(db_session)

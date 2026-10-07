@@ -27,6 +27,7 @@ async def seed_data(session):
 
     session.add_all([own_read_write_delete_permissions, only_read_permissions, full_permissions])
     session.add_all([role_user, role_admin])
+
     try:
         await session.commit()
     except IntegrityError:

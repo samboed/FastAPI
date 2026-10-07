@@ -36,7 +36,7 @@ def create_access_token(data: dict = None) -> tuple[str, int]:
 
     expire_time = datetime.now() + timedelta(seconds=JWT_TTL)
 
-    payload['exp'] = str(int(expire_time.timestamp()))
+    payload['exp'] = int(expire_time.timestamp())
 
     token = jwt.encode(payload, JWT_SECRET_KEY, JWT_ALGORITHM)
 
@@ -48,7 +48,7 @@ def decode_access_token(access_token: str) -> dict[str, Any] | None:
         payload = jwt.decode(
             access_token,
             JWT_SECRET_KEY,
-            [JWT_ALGORITHM]
+            algorithms=[JWT_ALGORITHM]
         )
     except jwt.PyJWTError:
         return None

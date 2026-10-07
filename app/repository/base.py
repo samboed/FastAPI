@@ -45,7 +45,7 @@ async def add_created_item(session: AsyncSession,
 
         if getattr(ex.orig, "pgcode", None) == '23505':
             raise ItemIsExistError(
-                message=f'{item.__name__.capitalize()} '
+                message=f'{item.__class__.__name__.capitalize()} '
                         f'already exists'
             )
 

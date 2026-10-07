@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import check_password, create_access_token
 from app.core.exceptions import UnauthorizedError
-from app.schemas.login import  CredentialsFormDep
+from app.schemas.login import  UserLogin
 from app.repository.user import get_user
 from app.repository.base import add_item
 from app.models.token import Token
@@ -14,7 +14,7 @@ FailAuthenticateError = UnauthorizedError(
 
 
 async def authenticate_user(db_session: AsyncSession,
-                            credentials: CredentialsFormDep):
+                            credentials: UserLogin):
     user = await get_user(db_session, credentials.username)
     if not user:
         raise FailAuthenticateError

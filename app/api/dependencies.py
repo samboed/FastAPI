@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import decode_access_token
@@ -13,9 +13,7 @@ from app.database import get_db_session
 
 DatabaseSessionDep = Annotated[AsyncSession, Depends(get_db_session)]
 
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='api/v1/login')
-
+security_scheme = HTTPBearer()
 
 credentials_error = UnauthorizedError(
     message='Invalid authentication credentials'
@@ -23,8 +21,8 @@ credentials_error = UnauthorizedError(
 
 
 async def get_current_user(db_session: DatabaseSessionDep,
-                           access_token: str = Depends(oauth2_scheme)) -> User:
-    payload = decode_access_token(access_token)
+                           token: HTTPAuthorizationCredentials = Depends(security_scheme)) -> User:
+    payload = decode_access_token(token.credentials)
     if payload is None:
         raise credentials_error
 
